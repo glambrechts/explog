@@ -19,18 +19,18 @@ def _identifier(n):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=n))
 
 
-def exp(config):
+def exp(*args, **kwargs):
     """
     Initialize an experiment.
     """
-    return Experiment(config)
+    return Experiment(*args, **kwargs)
 
 
-def init(config):
+def init(*args, **kwargs):
     """
     Alias for `exp`.
     """
-    return exp(config)
+    return exp(*args, **kwargs)
 
 
 def log(*args, **logs):
@@ -59,6 +59,27 @@ def runs():
     Alias for `exps`.
     """
     return exps()
+
+
+def dict_from_kwargs(config=None, *args, **kwargs):
+    """
+    Returns dictionary from either a single dictionary or kwargs arguments.
+    """
+    # Check that inputs are keyword arguments or a dictionary
+    if len(args) > 1 or (args and kwargs) or (
+            config is not None and (args or kwargs)):
+        raise ValueError("Usage: log(config) or log(**config).")
+    if config is not None:
+        args = [config]
+    if args and not isinstance(args[0], dict):
+        try:
+            dictionary = vars(args[0])
+        except TypeError:
+            raise ValueError("The provided argument should be a dictionary.")
+    else:
+        dictionary = kwargs
+
+    return dictionary
 
 
 def logs(*columns, **filters):
@@ -100,10 +121,9 @@ class Experiment:
     """
     current = None
 
-    def __init__(self, config):
-        # Check that configuration is a dictionary
-        if not isinstance(config, dict):
-            config = vars(config)
+    def __init__(self, config=None, *args, id=None, **kwargs):
+        # Parse inputs
+        config = dict_from_kwargs(config=config, *args, **kwargs)
 
         # Check configuration keys
         for key in config.keys():
@@ -121,16 +141,11 @@ class Experiment:
         # Store current instance in class
         Experiment.current = self
 
-    def log(self, *args, **logs):
-        # Check that inputs are keyword arguments or a dictionary
-        if len(args) > 1 or (args and logs):
-            raise ValueError("Usage: log(dictionary) or log(**dictionary).")
-        if args and not isinstance(args[0], dict):
-            raise ValueError("The provided argument should be a dictionary.")
-
-        # Retrieve dictionary
-        if args:
-            logs = args[0]
+    def log(self, *args, **kwargs):
+        """
+        """
+        # Parse inputs
+        logs = dict_from_kwargs(*args, **kwargs)
 
         # Check logs keys
         for key in logs.keys():
