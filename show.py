@@ -1,16 +1,18 @@
-import explog
+import explog as xl
 import matplotlib.pyplot as plt
 
 from argparse import ArgumentParser
 
 
 def main(args):
-    df = explog.logs('epoch', 'loss', num_epochs=100)
-    df = df.groupby('epoch').agg(['mean', 'median', 'std', 'min', 'max'])
+    logs = xl.logs('epoch', 'loss', num_epochs=100)
+    logs = logs.groupby('epoch').agg(['mean', 'median', 'std', 'min', 'max'])
 
     fig, ax = plt.subplots()
-    ax.plot(df.index, df.loss['median'])
-    ax.fill_between(df.index, df.loss['min'], df.loss['max'], alpha=0.2)
+    ax.plot(logs.index, logs.loss['median'])
+    ax.fill_between(logs.index, logs.loss['min'], logs.loss['max'], alpha=0.2)
+
+    plt.tight_layout()
     plt.show()
 
 

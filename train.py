@@ -1,12 +1,12 @@
-import explog
 import random
+import explog as xl
 import matplotlib.pyplot as plt
 
 from argparse import ArgumentParser
 
 
 def main(args):
-    exp = explog.init(config=args)
+    exp = xl.exp(config=args)
 
     for epoch in range(args.num_epochs):
         loss = random.random() * (1.05 ** (- epoch))
@@ -14,7 +14,7 @@ def main(args):
         exp.log(epoch=epoch, loss=loss, metric=metric)
 
     if args.plot:
-        df = exp.get('epoch', 'loss')
+        df = exp.logs('epoch', 'loss')
         df.plot('epoch', 'loss')
         plt.show()
 

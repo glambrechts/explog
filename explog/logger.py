@@ -17,12 +17,12 @@ def _identifier(n):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=n))
 
 
-def init(config):
+def exp(config):
     # Initialize an experiment
     return Experiment(config)
 
 
-def exps(*columns):
+def exps():
     # Retrieve experiments
     exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
     exps = exps.set_index('_id')
@@ -103,6 +103,6 @@ class Experiment:
             f.write(json.dumps(logs) + "\n")
         logs.pop('_id')
 
-    def get(self, *columns):
+    def logs(self, *columns):
         # Retrieve logged data for this run
         return logs(*columns, _id=self.id)

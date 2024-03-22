@@ -8,15 +8,15 @@ pip install explog
 
 ## Logging
 
-Use `exp = explog.init(config)` to initialize an experiment and `exp.log(...)` to log statistics.
+Use `exp = explog.exp(config)` to initialize an experiment and `exp.log(...)` to log statistics.
 
 ```python3
-import explog
+import explog as xl
 import random
 
 config = {'num_epochs': 100, 'learning_rate': 1e-3, 'batch_size': 32}
 
-exp = explog.init(config)
+exp = xl.exp(config)
 
 for epoch in range(config['num_epochs']):
     loss = random.random() * 1.05 ** (- epoch)
@@ -28,7 +28,8 @@ for epoch in range(config['num_epochs']):
 Retrieve dataframe of experiments using `explog.exps()`.
 
 ```ipython
-> explog.exps()
+> import explog as xl
+> xl.exps()
           num_epochs  learning_rate  batch_size
 _id
 w1gf6deg         100          0.001          32
@@ -41,7 +42,8 @@ hdakmy0l         100          0.001          32
 Retrieve dataframe of logs using `explog.logs()`.
 
 ```ipython
-> explog.logs()
+> import explog as xl
+> xl.logs()
                 epoch      loss  num_epochs  learning_rate  batch_size
 _id      _step
 w1gf6deg 0          0  0.901695         100          0.001          32
@@ -62,12 +64,12 @@ hdakmy0l 95        95  0.003342         100          0.001          32
 Use dataframe of logs from `explog.logs()` to make your plots.
 
 ```python3
-import explog
+import explog as xl
 import matplotlib.pyplot as plt
 
-df = explog.logs('epoch', 'loss')
-df = df.groupby('epoch').mean()
+logs = xl.logs('epoch', 'loss')
+logs = logs.groupby('epoch').mean()
 
-plt.plot(df.index, df['loss'])
+plt.plot(logs.index, logs['loss'])
 plt.show()
 ```
