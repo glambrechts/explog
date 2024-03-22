@@ -22,6 +22,11 @@ def exp(config):
     return Experiment(config)
 
 
+def init(config):
+    # Alias for `exp`
+    return exp(config)
+
+
 def log(*args, **logs):
     # Check that an experiment already exists
     if Experiment.current is None:
@@ -37,6 +42,11 @@ def exps():
     exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
     exps = exps.set_index('_id')
     return exps
+
+
+def runs():
+    # Alias for `exps`
+    return exps()
 
 
 def logs(*columns, **filters):
