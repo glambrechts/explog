@@ -13,22 +13,30 @@ FORMAT = "[a-zA-Z][a-zA-Z0-9_/]*"
 
 
 def _identifier(n):
-    # Sample a random identifier
+    """
+    Sample a random identifier.
+    """
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=n))
 
 
 def exp(config):
-    # Initialize an experiment
+    """
+    Initialize an experiment.
+    """
     return Experiment(config)
 
 
 def init(config):
-    # Alias for `exp`
+    """
+    Alias for `exp`.
+    """
     return exp(config)
 
 
 def log(*args, **logs):
-    # Check that an experiment already exists
+    """
+    Check that an experiment already exists.
+    """
     if Experiment.current is None:
         raise AttributeError(
             "Initialize an experiment with `explog.exp` before logging.")
@@ -38,18 +46,24 @@ def log(*args, **logs):
 
 
 def exps():
-    # Retrieve experiments
+    """
+    Retrieve experiments.
+    """
     exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
     exps = exps.set_index('_id')
     return exps
 
 
 def runs():
-    # Alias for `exps`
+    """
+    Alias for `exps`.
+    """
     return exps()
 
 
 def logs(*columns, **filters):
+    """
+    """
     # Retrieve experiments configurations
     exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
 
@@ -82,7 +96,8 @@ def logs(*columns, **filters):
 
 
 class Experiment:
-
+    """
+    """
     current = None
 
     def __init__(self, config):
@@ -130,5 +145,7 @@ class Experiment:
         logs.pop('_id')
 
     def logs(self, *columns):
+        """
+        """
         # Retrieve logged data for this run
         return logs(*columns, _id=self.id)
