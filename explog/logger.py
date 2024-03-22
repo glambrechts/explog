@@ -22,6 +22,16 @@ def exp(config):
     return Experiment(config)
 
 
+def log(*args, **logs):
+    # Check that an experiment already exists
+    if Experiment.current is None:
+        raise AttributeError(
+            "Initialize an experiment with `explog.exp` before logging.")
+
+    # Log to current run
+    Experiment.current.log(*args, **logs)
+
+
 def exps():
     # Retrieve experiments
     exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
@@ -62,6 +72,9 @@ def logs(*columns, **filters):
 
 
 class Experiment:
+
+    current = None
+
     def __init__(self, config):
         # Check that configuration is a dictionary
         if not isinstance(config, dict):
@@ -79,6 +92,9 @@ class Experiment:
         # Store configuration
         with open(EXPS_DIRECTORY / "exps.json", "a") as f:
             f.write(json.dumps(config) + "\n")
+
+        # Store current instance in class
+        Experiment.current = self
 
     def log(self, *args, **logs):
         # Check that inputs are keyword arguments or a dictionary
