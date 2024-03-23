@@ -4,13 +4,14 @@ import json
 import string
 import random
 import pandas as pd
+import datetime as dt
 
 from pathlib import Path
 
 
 EXPS_DIRECTORY = Path("exps")
 FORMAT = "[a-zA-Z][a-zA-Z0-9_/]*"
-INFOS = ['_id', '_step']
+INFOS = ['_id', '_step', '_start']
 
 
 def _identifier(n):
@@ -139,9 +140,9 @@ class Experiment:
             if not re.fullmatch(FORMAT, key):
                 raise ValueError(f"Column '{key}' not in format '{FORMAT}'")
 
-        # Sample random identifier
+        # Add information
         self.id = _identifier(8) if id is None else id
-        info = {'_id': self.id}
+        info = {'_id': self.id, '_start': dt.datetime.now().isoformat()}
 
         # Check id does not exist
         path = EXPS_DIRECTORY / self.id
@@ -168,12 +169,13 @@ class Experiment:
             if not re.fullmatch(FORMAT, key):
                 raise ValueError(f"Column '{key}' not in format '{FORMAT}'")
 
-        logs['_id'] = self.id
+        # Add information
+        info = {'_id': self.id, '_time': dt.datetime.now().isoformat()}
+
         logs_file = EXPS_DIRECTORY / f"{self.id}/logs.json"
         logs_file.touch()
         with open(logs_file, "a") as f:
-            f.write(json.dumps(logs) + "\n")
-        logs.pop('_id')
+            f.write(json.dumps(logs | info) + "\n")
 
     def logs(self, *columns):
         """
