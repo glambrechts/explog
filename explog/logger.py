@@ -140,8 +140,15 @@ class Experiment:
                 raise ValueError(f"Column '{key}' not in format '{FORMAT}'")
 
         # Sample random identifier
-        self.id = _identifier(8)
-        config['_id'] = self.id
+        self.id = _identifier(8) if id is None else id
+        info = {'_id': self.id}
+
+        # Check id does not exist
+        path = EXPS_DIRECTORY / self.id
+        if path.exists():
+            raise ValueError(f"Experiment with id {self.id} already exist")
+        else:
+            path.mkdir()
 
         # Store configuration
         with open(EXPS_DIRECTORY / f"{self.id}/config.json", "a") as f:
