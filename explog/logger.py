@@ -9,8 +9,8 @@ from pathlib import Path
 
 
 EXPS_DIRECTORY = Path("exps")
-LOGS_DIRECTORY = EXPS_DIRECTORY / "logs"
 FORMAT = "[a-zA-Z][a-zA-Z0-9_/]*"
+INFOS = ['_id', '_step']
 
 
 def _identifier(n):
@@ -91,8 +91,11 @@ def dict_from_kwargs(config=None, *args, **kwargs):
 def logs(*columns, **filters):
     """
     """
-    # Retrieve experiments configurations
-    exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
+    # Check columns names
+    for column in columns:
+        if not re.fullmatch(FORMAT, column):
+            raise ValueError(f"Column '{column}' not in format '{FORMAT}'")
+    columns = list(columns) + list(filters.keys())
 
     # Retrieve experiments logs
     logs = []
@@ -101,21 +104,20 @@ def logs(*columns, **filters):
         log = pd.read_json(file, lines=True)
         log.index.name = '_step'
         log = log.reset_index()
+        for key, val in filters.items():
+            if key in log:
+                log = log[log[key] == val]
+        if columns:
+            log = log.loc[:, log.columns.isin(columns + INFOS)]
         logs.append(log)
     logs = pd.concat(logs, axis=0)
 
     # Join configurations and logs
-    logs = logs.merge(exps, on='_id')
+    logs = logs.merge(exps(), on='_id')
 
     # Filter rows
     for key, val in filters.items():
         logs = logs[logs[key] == val]
-
-    # Select columns
-    if columns:
-        columns = list(columns)
-        columns = [c for c in logs.columns if c.startswith('_')] + columns
-        logs = logs[columns]
 
     # Set index
     logs = logs.set_index(['_id', '_step'])
