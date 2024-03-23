@@ -1,6 +1,5 @@
-from .logger import EXPS_DIRECTORY, LOGS_DIRECTORY
+from .logger import EXPS_DIRECTORY
 from .logger import exp, log, exps, logs, init, runs
 
 
-EXPS_DIRECTORY.mkdir(parents=True, exist_ok=True)
-LOGS_DIRECTORY.mkdir(parents=True, exist_ok=True)
+EXPS_DIRECTORY.mkdir(exist_ok=True)

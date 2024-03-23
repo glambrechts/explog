@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import string
@@ -49,7 +50,12 @@ def exps():
     """
     Retrieve experiments.
     """
-    exps = pd.read_json(EXPS_DIRECTORY / "exps.json", lines=True)
+    exps = []
+    files = EXPS_DIRECTORY.glob('*/config.json')
+    for file in sorted(files, key=lambda x: os.path.getmtime(x)):
+        exp = pd.read_json(file, lines=True, convert_dates=['_start'])
+        exps.append(exp)
+    exps = pd.concat(exps, axis=0)
     exps = exps.set_index('_id')
     return exps
 
@@ -90,7 +96,8 @@ def logs(*columns, **filters):
 
     # Retrieve experiments logs
     logs = []
-    for file in LOGS_DIRECTORY.glob('*.json'):
+    files = EXPS_DIRECTORY.glob('*/logs.json')
+    for file in sorted(files, key=lambda x: os.path.getmtime(x)):
         log = pd.read_json(file, lines=True)
         log.index.name = '_step'
         log = log.reset_index()
@@ -135,8 +142,8 @@ class Experiment:
         config['_id'] = self.id
 
         # Store configuration
-        with open(EXPS_DIRECTORY / "exps.json", "a") as f:
-            f.write(json.dumps(config) + "\n")
+        with open(EXPS_DIRECTORY / f"{self.id}/config.json", "a") as f:
+            f.write(json.dumps(config | info) + "\n")
 
         # Store current instance in class
         Experiment.current = self
@@ -153,7 +160,7 @@ class Experiment:
                 raise ValueError(f"Column '{key}' not in format '{FORMAT}'")
 
         logs['_id'] = self.id
-        logs_file = (LOGS_DIRECTORY / f"{self.id}.json")
+        logs_file = EXPS_DIRECTORY / f"{self.id}/logs.json"
         logs_file.touch()
         with open(logs_file, "a") as f:
             f.write(json.dumps(logs) + "\n")
