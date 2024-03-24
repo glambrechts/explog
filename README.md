@@ -1,4 +1,4 @@
-# ExpLog - A Minimal Experiment Logger
+# Exp Log - A Minimal Experiment Logger
 
 ## Installation
 
@@ -6,9 +6,11 @@
 pip install explog
 ```
 
+Then, `import explog as xl`.
+
 ## Logging
 
-Use `exp = explog.exp(config)` to initialize an experiment and `exp.log(...)` to log statistics.
+Use `exp = xl.exp(config)` to initialize an experiment and `exp.log(...)` to log statistics.
 
 ```python3
 import explog as xl
@@ -23,12 +25,14 @@ for epoch in range(config['num_epochs']):
     exp.log(epoch=epoch, loss=loss)
 ```
 
+- **NB:** Using `xl.log(...)` instead of `exp.log(...)` automatically logs to the latest experiment.
+- **NB:** Both `xl.exp(...)` and `xl.log(...)` accept dictionary or kwargs arguments.
+
 ## Exploring runs
 
-Retrieve dataframe of experiments using `explog.exps()`.
+Retrieve dataframe of experiments using `xl.exps()`.
 
 ```ipython
-> import explog as xl
 > xl.exps()
           num_epochs  learning_rate  batch_size
 _id
@@ -39,10 +43,9 @@ hdakmy0l         100          0.001          32
 
 ## Exploring logs
 
-Retrieve dataframe of logs using `explog.logs()`.
+Retrieve dataframe of logs using `xl.logs()`.
 
 ```ipython
-> import explog as xl
 > xl.logs()
                 epoch      loss  num_epochs  learning_rate  batch_size
 _id      _step
@@ -61,7 +64,7 @@ hdakmy0l 95        95  0.003342         100          0.001          32
 
 ## Plotting
 
-Use dataframe of logs from `explog.logs()` to make your plots.
+Use dataframe of logs from `xl.logs()` to make your plots.
 
 ```python3
 import explog as xl
@@ -72,4 +75,17 @@ logs = logs.groupby('epoch').mean()
 
 plt.plot(logs.index, logs['loss'])
 plt.show()
+```
+
+## Weights & Biases users
+
+Use aliases `run = xl.init(config)` for `exp = xl.exp(config)` and `xl.runs` for `xl.exps`.
+
+```ipython3
+> run = xl.init(config)
+> run.log(step=0)
+> xl.runs()
+          num_epochs  learning_rate  batch_size
+_id
+z5y6tdm5         100          0.001          32
 ```
