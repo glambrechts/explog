@@ -1,10 +1,8 @@
 import explog as xl
 import matplotlib.pyplot as plt
 
-from argparse import ArgumentParser
 
-
-def main(args):
+def main():
     logs = xl.logs('epoch', 'loss', num_epochs=100)
     logs = logs.groupby('epoch').agg(['mean', 'median', 'std', 'min', 'max'])
 
@@ -17,6 +15,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    args = parser.parse_args()
-    main(args)
+    main()

@@ -21,6 +21,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+
+    parser.add_argument('--repeat', type=int, default=1)
     parser.add_argument('--plot', action='store_true')
 
     parser.add_argument('--num_epochs', type=int, default=100)
@@ -28,4 +30,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=32)
 
     args = parser.parse_args()
-    main(args)
+
+    for i in range(args.repeat):
+        main(args)
