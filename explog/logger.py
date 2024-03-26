@@ -11,14 +11,14 @@ from pathlib import Path
 
 EXPS_DIRECTORY = Path("exps")
 FORMAT = "[a-zA-Z][a-zA-Z0-9_/]*"
-INFOS = ['_id', '_step', '_start']
+INFOS = ["_id", "_step", "_start"]
 
 
 def _identifier(n):
     """
     Sample a random identifier.
     """
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=n))
+    return "".join(random.choices(string.ascii_lowercase + string.digits, k=n))
 
 
 def exp(*args, **kwargs):
@@ -52,12 +52,16 @@ def exps():
     Retrieve experiments.
     """
     exps = []
-    files = EXPS_DIRECTORY.glob('*/config.json')
+    files = EXPS_DIRECTORY.glob("*/config.json")
     for file in sorted(files, key=lambda x: os.path.getmtime(x)):
-        exp = pd.read_json(file, lines=True, convert_dates=['_start'])
+        try:
+            exp = pd.read_json(file, lines=True, convert_dates=["_start"])
+        except ValueError as e:
+            print(f"Error while reading config file '{file}' ({e}). Skipped.")
+            continue
         exps.append(exp)
     exps = pd.concat(exps, axis=0)
-    exps = exps.set_index('_id')
+    exps = exps.set_index("_id")
     return exps
 
 
@@ -100,10 +104,14 @@ def logs(*columns, **filters):
 
     # Retrieve experiments logs
     logs = []
-    files = EXPS_DIRECTORY.glob('*/logs.json')
+    files = EXPS_DIRECTORY.glob("*/logs.json")
     for file in sorted(files, key=lambda x: os.path.getmtime(x)):
-        log = pd.read_json(file, lines=True)
-        log.index.name = '_step'
+        try:
+            log = pd.read_json(file, lines=True)
+        except ValueError as e:
+            print(f"Error while reading log file '{file}' ({e}). Skipped.")
+            continue
+        log.index.name = "_step"
         log = log.reset_index()
         for key, val in filters.items():
             if key in log:
@@ -114,14 +122,14 @@ def logs(*columns, **filters):
     logs = pd.concat(logs, axis=0)
 
     # Join configurations and logs
-    logs = logs.merge(exps(), on='_id')
+    logs = logs.merge(exps(), on="_id")
 
     # Filter rows
     for key, val in filters.items():
         logs = logs[logs[key] == val]
 
     # Set index
-    logs = logs.set_index(['_id', '_step'])
+    logs = logs.set_index(["_id", "_step"])
 
     return logs
 
@@ -142,7 +150,7 @@ class Experiment:
 
         # Add information
         self.id = _identifier(8) if id is None else id
-        info = {'_id': self.id, '_start': dt.datetime.now().isoformat()}
+        info = {"_id": self.id, "_start": dt.datetime.now().isoformat()}
 
         # Check id does not exist
         path = EXPS_DIRECTORY / self.id
@@ -170,7 +178,7 @@ class Experiment:
                 raise ValueError(f"Column '{key}' not in format '{FORMAT}'")
 
         # Add information
-        info = {'_id': self.id, '_time': dt.datetime.now().isoformat()}
+        info = {"_id": self.id, "_time": dt.datetime.now().isoformat()}
 
         logs_file = EXPS_DIRECTORY / f"{self.id}/logs.json"
         logs_file.touch()
