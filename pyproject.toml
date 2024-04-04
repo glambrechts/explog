@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "explog"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
   { name="Gaspard Lambrechts", email="gsprd@protonmail.com" },
 ]
