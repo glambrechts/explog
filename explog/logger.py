@@ -72,23 +72,24 @@ def runs():
     return exps()
 
 
-def dict_from_kwargs(config=None, *args, **kwargs):
+def dict_from_kwargs(config=None, **kwargs):
     """
     Returns dictionary from either a single dictionary or kwargs arguments.
     """
     # Check that inputs are keyword arguments or a dictionary
-    if len(args) > 1 or (args and kwargs) or (
-            config is not None and (args or kwargs)):
+    if config and kwargs:
         raise ValueError("Usage: log(config) or log(**config).")
-    if config is not None:
-        args = [config]
-    if args and not isinstance(args[0], dict):
+
+    # Parse dictionary
+    if config is None:
+        dictionary = kwargs
+    elif isinstance(config, dict):
+        dictionary = config
+    else:
         try:
-            dictionary = vars(args[0])
+            dictionary = vars(config)
         except TypeError:
             raise ValueError("The provided argument should be a dictionary.")
-    else:
-        dictionary = kwargs
 
     return dictionary
 
